@@ -7,6 +7,10 @@ package com.rlaur.paypal;
  */
 public interface PayPal {
 
-    User login();
+    /**
+     * User of the API. It may be personal or business user
+     * @return User
+     */
+    User login(final String clientId, final String clientSecret);
 
 }
