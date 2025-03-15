@@ -83,7 +83,7 @@ public interface Header {
 
     final class Authorization extends OfPayPal {
         public Authorization(String clientId, String clientSecret) {
-            super("Authorization", Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes()));
+            super("Authorization", "Basic " + Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes()));
         }
     }
 

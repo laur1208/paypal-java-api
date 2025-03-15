@@ -15,6 +15,8 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <client.id>${client.id}</client.id>
+        <client.secret>${client.secret}</client.secret>
     </properties>
 
     <dependencies>
@@ -50,6 +52,32 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.11</version>
         </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>5.0.0-alpha.14</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <mainClass>com.rlaur.paypal.Main</mainClass>
+<!--                    <systemProperties>-->
+<!--                        <client_id>${client_id}</client_id>-->
+<!--                        <client_secret>${client_secret}</client_secret>-->
+<!--                    </systemProperties>-->
+                    <arguments>
+                        <argument>-Dclient_id=${client.id}</argument>
+                        <argument>-Dclient_secret=${client.secret}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
