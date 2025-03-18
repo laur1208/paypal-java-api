@@ -42,7 +42,7 @@ public interface JsonResources {
         /**
          * Form params of the request
          */
-        private final FormParams formParams;
+        private final FormParam formParam;
 
         /**
          * Constructor
@@ -56,12 +56,12 @@ public interface JsonResources {
         /**
          * Constructor
          *
-         * @param headers    Headers
-         * @param formParams FormParams
+         * @param headers   Headers
+         * @param formParam FormParams
          */
-        public FromHttp(Headers headers, FormParams formParams) {
+        public FromHttp(Headers headers, FormParam formParam) {
             this.headers = headers;
-            this.formParams = formParams;
+            this.formParam = formParam;
         }
 
         @Override
@@ -107,28 +107,21 @@ public interface JsonResources {
 
             this.headers.iterator().forEachRemaining(
                     header ->
-                    {
-                        System.out.println("Headers of " + uri + " " + header.name() + " " + header.value());
-                        request[0] = request[0].header(header.name(), header.value());
-                    }
+                            request[0] = request[0].header(header.name(), header.value())
             );
-            System.out.println("after iterator " + uri.toString());
-            if (this.formParams != null) {
-                request[0] = request[0].body().formParam(this.formParams.key(), this.formParams.value()).back();
+            if (this.formParam != null) {
+                request[0] = request[0].body().formParam(this.formParam.key(), this.formParam.value()).back();
             }
 
             return request[0];
         }
 
         private Resource getResource(String method, URI uri, JsonResponse response) {
-            if (response.status() == 200
-                    || response.status() == 201
-                    || response.status() == 202
-                    || response.status() == 204) {
+            if (response.status() == 200 || response.status() == 201 || response.status() == 202 || response.status() == 204) {
                 return new JsonResult(
                         response.status(),
                         response.body(),
-                        new Headers.OfRequest(response.headers())
+                        new RequestHeaders(response.headers())
                 );
             }
             throw new PayPalException(

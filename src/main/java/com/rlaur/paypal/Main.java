@@ -13,25 +13,6 @@ import java.util.stream.Stream;
 public class Main {
     public static void main(String[] args) {
 
-//        Headers headers = new Headers.OfRequest(
-//                () -> Stream.of(
-//                        new Header.General("Content-Type", "application/json"),
-//                        new Header.General("Accept", "application/json"),
-//                        new Header.Authorization(System.getenv(Env.CLIENT_ID), System.getenv(Env.CLIENT_SECRET))
-//                )
-//        );
-
-//        Resource resource = new JsonResources.FromHttp(
-//               headers
-//        ).post(
-//                URI.create(System.getenv(Env.BASE_URL) + "/oauth2/token")
-//        );
-//        System.out.println(resource.json());
-
-//        AccessToken token = new Token();
-//        System.out.println(token.value());
-//        System.out.println(token.expiresIn());
-
         PayPal payPal = new LightPayPal("https://api-m.sandbox.paypal.com/v1");
 
         CatalogProduct product = payPal

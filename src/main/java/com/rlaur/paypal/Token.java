@@ -2,9 +2,7 @@ package com.rlaur.paypal;
 
 import com.rlaur.paypal.http.*;
 
-import javax.json.JsonObject;
 import java.net.URI;
-import java.util.stream.Stream;
 
 /**
  * Token of the PayPal API
@@ -14,19 +12,13 @@ public class Token implements AccessToken {
     /**
      * Token resource
      */
-    private Resource resource;
+    private final Resource resource;
 
     public Token() {
         this(
                 new JsonResources.FromHttp(
-                        new Headers.OfRequest(
-                                () -> Stream.of(
-                                        new Header.General("Content-Type", "application/json"),
-                                        new Header.General("Accept", "application/json"),
-                                        new Header.Authorization(System.getenv(Env.CLIENT_ID), System.getenv(Env.CLIENT_SECRET))
-                                )
-                        ),
-                        new FormParams.OfToken()
+                        new TokenHeaders(),
+                        new FormParam.OfToken()
                 ).post(URI.create(System.getenv(Env.BASE_URL) + "/oauth2/token"))
         );
     }
@@ -65,10 +57,4 @@ public class Token implements AccessToken {
         return resource.json().getString("nonce");
     }
 
-    private JsonObject json() {
-        if(this.resource == null) {
-            throw new IllegalStateException("Token resource is not available");
-        }
-        return this.resource.json();
-    }
 }
