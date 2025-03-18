@@ -1,8 +1,6 @@
 package com.rlaur.paypal;
 
-import com.rlaur.paypal.http.Headers;
 import com.rlaur.paypal.http.JsonResources;
-import com.rlaur.paypal.http.RequestHeaders;
 
 import javax.json.JsonObject;
 import java.net.URI;
@@ -15,10 +13,6 @@ final class PPCatalogProducts implements CatalogProducts {
     private final URI uri;
 
     private final PayPal payPal;
-
-    PPCatalogProducts(final URI uri, final PayPal payPal) {
-        this(new JsonResources.FromHttp(new RequestHeaders()), uri, payPal);
-    }
 
     PPCatalogProducts(final JsonResources resources, final URI uri, final PayPal payPal) {
         this.resources = resources;

@@ -1,21 +1,40 @@
 package com.rlaur.paypal;
 
+import com.rlaur.paypal.http.Authentication;
+import com.rlaur.paypal.http.ClientCredentialsAuth;
+import com.rlaur.paypal.http.JsonResources;
+import com.rlaur.paypal.http.RequestHeaders;
+
 import java.net.URI;
 
-public class LightPayPal implements PayPal{
+public class LightPayPal implements PayPal {
+
+    private final JsonResources client;
 
     private final URI uri;
 
-    public LightPayPal(String uri){
-        this(URI.create(uri));
+    private final Authentication auth;
+
+    public LightPayPal(final String clientId, final String clientSecret) {
+        this(new ClientCredentialsAuth(clientId, clientSecret, "https://api-m.sandbox.paypal.com/v1"));
     }
 
-    private LightPayPal(URI uri) {
+    public LightPayPal(final Authentication auth) {
+        this(new JsonResources.FromHttp(auth), URI.create(auth.url()), auth);
+    }
+
+    private LightPayPal(final JsonResources client, final URI uri, final Authentication auth) {
+        this.client = client;
         this.uri = uri;
+        this.auth = auth;
     }
 
     @Override
-    public User login(String clientId, String clientSecret) {
-        return new PPUser(uri, this);
+    public CatalogProducts catalogProducts() {
+        return new PPCatalogProducts(
+                new JsonResources.FromHttp(auth).withHeaders(new RequestHeaders(auth))
+                , URI.create(uri + "/catalogs")
+                , this
+        );
     }
 }

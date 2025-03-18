@@ -16,10 +16,6 @@ final class PPCatalogProduct extends Json implements CatalogProduct{
 
     private JsonObject catalogProduct;
 
-    PPCatalogProduct(final JsonObject catalogProduct, final URI uri, final PayPal payPal) {
-        this(catalogProduct, new JsonResources.FromHttp(new RequestHeaders()), uri, payPal);
-    }
-
     PPCatalogProduct(final JsonObject catalogProduct, final JsonResources client, final URI uri, final PayPal payPal) {
         super(catalogProduct);
         this.client = client;

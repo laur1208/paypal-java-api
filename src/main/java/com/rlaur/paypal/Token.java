@@ -8,23 +8,23 @@ import java.net.URI;
  * Token of the PayPal API
  */
 public class Token implements AccessToken {
-
     /**
      * Token resource
      */
     private final Resource resource;
 
-    public Token() {
+    public Token(final Authentication auth) {
         this(
                 new JsonResources.FromHttp(
-                        new TokenHeaders(),
+                        new TokenHeaders(auth.clientId(), auth.clientSecret()),
                         new FormParam.OfToken()
-                ).post(URI.create(System.getenv(Env.BASE_URL) + "/oauth2/token"))
+                ).post(URI.create(auth.url() + "/oauth2/token"))
         );
     }
 
     private Token(Resource resource) {
         this.resource = resource;
+
     }
 
     @Override

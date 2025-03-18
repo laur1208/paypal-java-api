@@ -1,7 +1,6 @@
 package com.rlaur.paypal.http;
 
 import com.rlaur.paypal.CachedToken;
-import com.rlaur.paypal.Token;
 
 import java.util.Iterator;
 import java.util.List;
@@ -13,11 +12,11 @@ public class RequestHeaders implements Headers {
 
     private final Supplier<Stream<Header>> headers;
 
-    public RequestHeaders() {
+    public RequestHeaders(final Authentication auth) {
         this(
                 new Header.General("Content-Type", "application/json"),
                 new Header.General("Accept", "application/json"),
-                new Header.Bearer(new CachedToken(new Token())),
+                new Header.Bearer(new CachedToken(new ClientCredentialsAuth(auth.clientId(), auth.clientSecret(), auth.url()))),
                 new Header.Prefer("representation")
         );
     }

@@ -1,49 +1,49 @@
 package com.rlaur.paypal;
 
-public class CachedToken implements AccessToken{
+import com.rlaur.paypal.http.Authentication;
+import com.rlaur.paypal.http.ClientCredentialsAuth;
 
-    private final AccessToken token;
+import java.time.LocalDateTime;
 
-    public CachedToken(AccessToken token) {
-        this.token = token;
+public class CachedToken implements Authentication {
+
+    private final Authentication auth;
+
+    public CachedToken(Authentication auth) {
+        this.auth = auth;
     }
 
     @Override
-    public String scope() {
-        return cached().scope();
+    public String clientId() {
+        return this.cached().clientId();
     }
 
     @Override
-    public String value() {
-        return cached().value();
+    public String clientSecret() {
+        return this.cached().clientSecret();
     }
 
     @Override
-    public String type() {
-        return cached().type();
+    public String url() {
+        return this.cached().url();
     }
 
     @Override
-    public String appId() {
-        return cached().appId();
+    public AccessToken token() {
+        return this.cached().token();
     }
 
-    @Override
-    public int expiresIn() {
-        return cached().expiresIn();
-    }
-
-    @Override
-    public String nonce() {
-        return cached().nonce();
-    }
-
-    private AccessToken cached() {
-        System.out.println("Token expires in " + this.token.expiresIn());
-        if(this.token.expiresIn() > 0) {
-            return this.token;
+    private Authentication cached() {
+        final AccessToken token = this.auth.token();
+        LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(token.expiresIn());
+//        System.out.println(expirationDateTime + " - " + token.value());
+        if(!token.value().equals("A21AAKkY9dEuSS8MndAnwj9OrFVVwEXgSH-AvJWVOd51lrQJ0w2ocuWv0gti5pnVApCRJDuTbVa6cv663jpJ1C-NjDPkfKJ6Q")){
+            throw new IllegalArgumentException("QQQ");
+        }
+        if(LocalDateTime.now().isAfter(expirationDateTime)) {
+            return new ClientCredentialsAuth(this.auth.clientId(), this.auth.clientSecret(), this.url());
         } else {
-            return new Token();
+            return this.auth;
         }
     }
 }

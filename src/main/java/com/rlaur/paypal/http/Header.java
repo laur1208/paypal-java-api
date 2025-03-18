@@ -90,8 +90,8 @@ public interface Header {
     }
 
     final class Bearer extends OfPayPal {
-        public Bearer(AccessToken accessToken) {
-            super("Authorization", "Bearer " + accessToken.value());
+        public Bearer(Authentication auth) {
+            super("Authorization", "Bearer " + auth.token().value());
         }
     }
 

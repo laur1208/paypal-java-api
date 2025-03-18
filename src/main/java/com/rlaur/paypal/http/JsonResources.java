@@ -29,10 +29,17 @@ public interface JsonResources {
 
     Resource post(final URI uri, final JsonObject body);
 
+    JsonResources withHeaders(final Headers headers);
+
     /**
      * Json Resource after calling a HTTP Method
      */
     final class FromHttp implements JsonResources {
+
+        /**
+         * Client credentials
+         */
+        private final Authentication auth;
 
         /**
          * Actual headers of the request
@@ -44,13 +51,18 @@ public interface JsonResources {
          */
         private final FormParam formParam;
 
+
+        public FromHttp(final Authentication auth) {
+            this(auth, null, null);
+        }
+
         /**
          * Constructor
          *
          * @param headers Headers
          */
-        public FromHttp(Headers headers) {
-            this(headers, null);
+        public FromHttp(final Authentication auth, final Headers headers) {
+            this(auth, headers, null);
         }
 
         /**
@@ -60,6 +72,11 @@ public interface JsonResources {
          * @param formParam FormParams
          */
         public FromHttp(Headers headers, FormParam formParam) {
+            this(null, headers, formParam);
+        }
+
+        public FromHttp(final Authentication auth, final Headers headers, final FormParam formParam) {
+            this.auth = auth;
             this.headers = headers;
             this.formParam = formParam;
         }
@@ -94,6 +111,11 @@ public interface JsonResources {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        @Override
+        public JsonResources withHeaders(Headers headers) {
+            return new JsonResources.FromHttp(this.auth, headers);
         }
 
         private Request prepareRequest(URI uri, String method, JsonObject body) {

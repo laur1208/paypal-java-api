@@ -8,9 +8,9 @@ package com.rlaur.paypal;
 public interface PayPal {
 
     /**
-     * User of the API. It may be personal or business user
-     * @return User
+     * CatalogProducts API.
+     * @return CatalogProducts
      */
-    User login(final String clientId, final String clientSecret);
+    CatalogProducts catalogProducts();
 
 }
