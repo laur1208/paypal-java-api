@@ -1,5 +1,7 @@
 package com.rlaur.paypal.http;
 
+import com.rlaur.paypal.AccessToken;
+
 import java.util.Base64;
 import java.util.function.Supplier;
 
@@ -84,6 +86,12 @@ public interface Header {
     final class Authorization extends OfPayPal {
         public Authorization(String clientId, String clientSecret) {
             super("Authorization", "Basic " + Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes()));
+        }
+    }
+
+    final class Bearer extends OfPayPal {
+        public Bearer(AccessToken accessToken) {
+            super("Authorization", "Bearer " + accessToken.value());
         }
     }
 

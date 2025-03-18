@@ -4,6 +4,7 @@ import com.jcabi.http.Request;
 import com.jcabi.http.request.JdkRequest;
 import com.jcabi.http.response.JsonResponse;
 import com.jcabi.http.wire.TrustedWire;
+import com.rlaur.paypal.PayPalException;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -20,9 +21,13 @@ import java.net.URI;
  */
 public interface JsonResources {
 
-    Resource get(final URI url);
+    Resource get(final URI uri);
 
-    Resource post(final URI url, final JsonObject body);
+    default Resource post(final URI uri) {
+        return this.post(uri, null);
+    }
+
+    Resource post(final URI uri, final JsonObject body);
 
     /**
      * Json Resource after calling a HTTP Method
@@ -35,38 +40,64 @@ public interface JsonResources {
         private final Headers headers;
 
         /**
+         * Form params of the request
+         */
+        private final FormParams formParams;
+
+        /**
          * Constructor
+         *
          * @param headers Headers
          */
         public FromHttp(Headers headers) {
+            this(headers, null);
+        }
+
+        /**
+         * Constructor
+         *
+         * @param headers    Headers
+         * @param formParams FormParams
+         */
+        public FromHttp(Headers headers, FormParams formParams) {
             this.headers = headers;
+            this.formParams = formParams;
         }
 
         @Override
-        public Resource get(URI url) {
-            return null;
-        }
-
-        @Override
-        public Resource post(URI url, JsonObject body) {
+        public Resource get(URI uri) {
             try {
                 JsonResponse response = this
-                        .prepareRequest(url, "POST", body)
+                        .prepareRequest(uri, "GET", null)
                         .through(TrustedWire.class)
                         .fetch()
                         .as(JsonResponse.class);
-                return new JsonResult(
-                        response.status(),
-                        response.body(),
-                        new Headers.OfRequest(response.headers())
-                );
+
+                return getResource("GET", uri, response);
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        private Request prepareRequest(URI url, String method, JsonObject body) {
-            final Request[] request = {new JdkRequest(url)};
+        @Override
+        public Resource post(URI uri, JsonObject body) {
+            try {
+                JsonResponse response = this
+                        .prepareRequest(uri, "POST", body)
+                        .through(TrustedWire.class)
+                        .fetch()
+                        .as(JsonResponse.class);
+
+                return getResource("POST", uri, response);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private Request prepareRequest(URI uri, String method, JsonObject body) {
+            final Request[] request = {new JdkRequest(uri)};
 
             request[0] = request[0].method(method);
 
@@ -76,12 +107,33 @@ public interface JsonResources {
 
             this.headers.iterator().forEachRemaining(
                     header ->
-                            request[0] = request[0].header(header.name(), header.value())
+                    {
+                        System.out.println("Headers of " + uri + " " + header.name() + " " + header.value());
+                        request[0] = request[0].header(header.name(), header.value());
+                    }
             );
-
-            request[0] = request[0].body().formParam("grant_type", "client_credentials").back();
+            System.out.println("after iterator " + uri.toString());
+            if (this.formParams != null) {
+                request[0] = request[0].body().formParam(this.formParams.key(), this.formParams.value()).back();
+            }
 
             return request[0];
+        }
+
+        private Resource getResource(String method, URI uri, JsonResponse response) {
+            if (response.status() == 200
+                    || response.status() == 201
+                    || response.status() == 202
+                    || response.status() == 204) {
+                return new JsonResult(
+                        response.status(),
+                        response.body(),
+                        new Headers.OfRequest(response.headers())
+                );
+            }
+            throw new PayPalException(
+                    method, uri.toString(), response.status(), response.json().readObject()
+            );
         }
     }
 
@@ -107,8 +159,9 @@ public interface JsonResources {
 
         /**
          * Constructor
-         * @param status int status
-         * @param body String body
+         *
+         * @param status  int status
+         * @param body    String body
          * @param headers Headers
          */
         public JsonResult(int status, String body, Headers headers) {

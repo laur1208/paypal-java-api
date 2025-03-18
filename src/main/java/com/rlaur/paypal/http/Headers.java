@@ -1,5 +1,8 @@
 package com.rlaur.paypal.http;
 
+import com.rlaur.paypal.CachedToken;
+import com.rlaur.paypal.Token;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +35,6 @@ public interface Headers extends Iterable<Header> {
 
         private final Supplier<Stream<Header>> headers;
 
-
         public OfRequest(Map<String, List<String>> headers) {
             this(
                     () -> headers.entrySet()
@@ -45,6 +47,12 @@ public interface Headers extends Iterable<Header> {
             );
         }
 
+        public OfRequest(Header... headers) {
+            this(
+                    () -> Stream.of(headers)
+            );
+        }
+
         /**
          * Constructor
          *
@@ -54,9 +62,6 @@ public interface Headers extends Iterable<Header> {
             this.headers = () -> Stream.of(header);
         }
 
-//        public OfRequest(Headers headers) {
-//            this.headers = () -> headers;
-//        }
 
         /**
          * Constructor
@@ -80,15 +85,48 @@ public interface Headers extends Iterable<Header> {
         }
     }
 
+    final class OfResource implements Headers {
+
+        private final Headers headers;
+
+        public OfResource() {
+            this(
+                    new Headers.OfRequest(
+                            new Header.General("Content-Type", "application/json"),
+                            new Header.General("Accept", "application/json"),
+                            new Header.Bearer(new CachedToken(new Token())),
+                            new Header.Prefer("representation")
+
+                    )
+            );
+        }
+
+        public OfResource(Headers headers) {
+            this.headers = headers;
+        }
+
+        @Override
+        public Headers set(Header header) {
+            return null;
+        }
+
+        @Override
+        public Iterator<Header> iterator() {
+            return this.headers.iterator();
+        }
+    }
+
 //    final class OfToken extends OfRequest {
 //
-//        public OfToken(Map<String, List<String>> headers) {
+//        public OfToken(Supplier<Stream<Header>> headers) {
 //            super(headers);
 //        }
 //
 //        @Override
 //        public Headers set(Header header) {
-//            return null;
+//            return new Headers.OfToken(
+//                    () -> Stream.concat(super.headers.get(), Stream.of(header))
+//            );
 //        }
 //    }
 
