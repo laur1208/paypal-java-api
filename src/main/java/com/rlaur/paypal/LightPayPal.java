@@ -32,7 +32,7 @@ public class LightPayPal implements PayPal {
     @Override
     public CatalogProducts catalogProducts() {
         return new PPCatalogProducts(
-                new JsonResources.FromHttp(auth).withHeaders(new RequestHeaders(auth))
+                this.client.withHeaders(new RequestHeaders(auth))
                 , URI.create(uri + "/catalogs")
                 , this
         );

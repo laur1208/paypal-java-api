@@ -73,7 +73,7 @@ public interface Header {
 
     final class Prefer extends OfPayPal {
         public Prefer(String representation) {
-            super("Prefer", representation);
+            super("Prefer", "return=" + representation);
         }
     }
 

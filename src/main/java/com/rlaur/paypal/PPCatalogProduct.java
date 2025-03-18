@@ -45,17 +45,17 @@ final class PPCatalogProduct extends Json implements CatalogProduct{
 
     @Override
     public String category() {
-        return catalogProduct().getString("category");
+        return this.getString("category");
     }
 
     @Override
     public String imageUrl() {
-        return catalogProduct().getString("image_url");
+        return this.getString("image_url");
     }
 
     @Override
     public String homeUrl() {
-        return catalogProduct().getString("home_url");
+        return this.getString("home_url");
     }
 
     private JsonObject catalogProduct(){

@@ -34,6 +34,19 @@ final class PPCatalogProducts implements CatalogProducts {
     }
 
     @Override
+    public CatalogProduct get(String id) {
+        final URI uri = URI.create(this.uri + "/products/" + id);
+        System.out.println("get " + id);
+        JsonObject product = this.resources.get(uri).json();
+        return new PPCatalogProduct(
+                product,
+                this.resources,
+                uri,
+                this.payPal
+        );
+    }
+
+    @Override
     public Iterator<CatalogProduct> iterator() {
         return null;
     }

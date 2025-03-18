@@ -16,4 +16,11 @@ public interface CatalogProducts extends Iterable<CatalogProduct>{
      */
     CatalogProduct create(JsonObject catalogProduct);
 
+    /**
+     * Get a catalog product by its id.
+     * @param id String id of the product.
+     * @return {@link CatalogProduct}
+     */
+    CatalogProduct get(String id);
+
 }

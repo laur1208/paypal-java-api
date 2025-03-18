@@ -27,5 +27,8 @@ public class Main {
         System.out.println(product.imageUrl());
 
 
+        CatalogProduct p = payPal.catalogProducts().get("PROD-6CJ66407YA064270W");
+        System.out.println(p.name());
+
     }
 }
