@@ -1,0 +1,162 @@
+@startuml
+
+package paypal {
+
+    package http {
+        interface Authentication {
+            +clientId(): String
+            +clientSecret(): String
+            +url(): String
+            +token(): AccessToken
+        }
+
+        interface AccessToken {
+            +scope(): String
+            +value(): String
+            +type(): String
+            +appId(): String
+            +expiresIn(): Integer
+            +nonce(): String
+        }
+        Authentication <-- AccessToken : uses
+
+        interface FormParam {
+            +key(): String
+            +value(): String
+        }
+
+        class "FormParam.OfToken" as OfToken {}
+        FormParam <|.. OfToken
+
+        interface Header {
+            +name(): String
+            +value(): String
+        }
+        abstract class "OfPaypal.Header" as OfPaypal
+        Header <|.. OfPaypal
+
+        class "General.Header" as General
+        OfPaypal <|-- General
+        class "Prefer.Header" as Prefer
+        OfPaypal <|-- Prefer
+        class "Authorization.Header" as Authorization
+        OfPaypal <|-- Authorization
+        class "Bearer.Header" as Bearer
+        OfPaypal <|-- Bearer
+
+        interface Headers {
+            set(): Headers
+        }
+        Headers -- Headers : add
+
+        class RequestHeaders implements Headers {
+            -headers: Header
+        }
+        Header <-- RequestHeaders : uses
+
+        interface JsonResources {
+            +get(URI): Resource
+            +post(URI, JsonObject): Resource
+            +withHeaders(Headers): JsonResources
+        }
+        JsonResources *-- Resource : manages
+        JsonResources ..> Headers : uses
+
+        class "JsonResource.FromHttp" as FromHttp implements JsonResources {
+            -auth: Authentication
+            -headers: Headers
+            -formParam: FormParam
+        }
+        FromHttp --> Authentication : uses
+        FromHttp --> Headers : uses
+        FromHttp --> FormParam : uses
+
+        interface Resource {
+            +status(): Integer
+            +json(): JsonObject
+        }
+
+        class "JsonResources.JsonResult" as JsonResult implements Resource {
+            -status: Integer
+            -body: String
+            -headers: Headers
+        }
+        JsonResult ..> Headers : has
+
+        class ClientCredentialsAuth {
+            -clientId: String
+            -clientSecret: String
+            -url: String
+
+        }
+        Authentication <|.. ClientCredentialsAuth
+
+        class CachedToken {
+            -auth: Authentication
+        }
+        note top of CachedToken
+           Decorator of Authentication
+        end note
+        Authentication <|.. CachedToken
+    }
+
+    interface PayPal {
+        +catalogProducts(): CatalogProducts
+    }
+
+    class LightPayPal {
+        -client: JsonResources
+        -uri: URI
+        -auth: Authentication
+    }
+    PayPal <|.. LightPayPal
+    LightPayPal --> JsonResources : uses
+    LightPayPal --> Authentication : uses
+
+    PayPal *-- CatalogProducts : owns
+
+    interface CatalogProducts {
+        +create(JsonObject): CatalogProduct
+        +get(String): CatalogProduct
+    }
+    class PPCatalogProducts {
+        -client: JsonResources
+        -uri: URI
+        -payPal: PayPal
+    }
+    CatalogProducts <|.. PPCatalogProducts
+    PPCatalogProducts --> JsonResources : uses
+    PPCatalogProducts ..> PayPal : knows
+
+    interface CatalogProduct {
+        +id(): String
+        +name(): String
+        +description(): String
+        +type(): String
+        +category(): String
+        +imageUrl(): String
+        +homeUrl(): String
+    }
+    class PPCatalogProduct{
+        -client: JsonResources
+        -uri: URI
+        -payPal: PayPal
+    }
+    CatalogProduct <|.. PPCatalogProduct
+    Json <|-- PPCatalogProduct
+    PPCatalogProduct --> JsonResources : uses
+    PPCatalogProduct ..> PayPal : knows
+
+    interface JsonObject {}
+    abstract class Json extends JsonObject
+    JsonObject <|-- CatalogProduct
+
+    CatalogProducts *-- "1..*" CatalogProduct : manages
+
+    class Token {
+        -resource: Resource
+    }
+    Token --> Resource : uses
+}
+
+@enduml
