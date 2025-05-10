@@ -100,7 +100,7 @@ package paypal {
         Authentication <|.. CachedToken
     }
 
-    interface PayPal {
+    interface PayPal #Business {
         +catalogProducts(): CatalogProducts
     }
 
@@ -119,7 +119,7 @@ package paypal {
         +create(JsonObject): CatalogProduct
         +get(String): CatalogProduct
     }
-    class PPCatalogProducts {
+    class PPCatalogProducts #Implementation {
         -client: JsonResources
         -uri: URI
         -payPal: PayPal

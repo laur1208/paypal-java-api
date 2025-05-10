@@ -36,14 +36,11 @@ public class CachedToken implements Authentication {
     private Authentication cached() {
         final AccessToken token = this.auth.token();
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(token.expiresIn());
-//        System.out.println(expirationDateTime + " - " + token.value());
-        if(!token.value().equals("A21AAL4Y0SbpD-9fIjhR_H4YwALpbB6XSVUZSuVuY_egGSu0GwVMefV5cOyWC8jl1f7XVJEwjzC03jyNIuH7ZWDoH-s1yl4rw")){
-            System.out.println(token.value());
-            //throw new IllegalArgumentException("QQQ");
-        }
         if(LocalDateTime.now().isAfter(expirationDateTime)) {
+            System.out.println("Token expired, refreshing");
             return new ClientCredentialsAuth(this.auth.clientId(), this.auth.clientSecret(), this.url());
         } else {
+            System.out.println("Token from cache");
             return this.auth;
         }
     }
